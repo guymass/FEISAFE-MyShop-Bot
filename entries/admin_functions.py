@@ -145,7 +145,8 @@ def add_category(update, context):
         return ConversationHandler.END
 
 
-# Handle user input during the conversation0
+# Handle user input during the conversation
+@deco.global_message_handler(Filters.text)
 def handle_new_category_name(update, context):
     try:
         chat_id = update.effective_chat.id
