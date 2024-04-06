@@ -57,7 +57,8 @@ __all__ = [
     "add_category",
     "cancel_add_category",
     "handle_new_category_name",
-    "admin_functions"
+    "admin_functions",
+    "conv_handler",
     
 ]
 

@@ -16,6 +16,7 @@ import logging
 from telegram.ext import ConversationHandler, CallbackQueryHandler
 from settings import admin_list
 
+
 logger = logging.getLogger(__name__)
 
 WAITING_FOR_CATEGORY_NAME = 1
@@ -116,11 +117,10 @@ def cancel_delete(update, context):
     # Return to the manage categories menu
     manage_categories(update, context)
 
-@deco.run_async
-@deco.restricted
-@deco.global_command_handler("add_category")
+@deco.global_callback_handler()
+@deco.conversation_command_handler('add_category')
 def add_category(update, context):
-    context.user_data['state'] = 'waiting_for_category_name'
+    context.user_data['state'] = WAITING_FOR_CATEGORY_NAME
     query = update.callback_query
     chat_id = query.message.chat_id
     
@@ -136,12 +136,10 @@ def add_category(update, context):
     
     # Set the state to WAITING_FOR_CATEGORY_NAME
     
-    return context.user_data['state']
+    return WAITING_FOR_CATEGORY_NAME
 
 
-@deco.run_async
-@deco.restricted
-@deco.global_command_handler("handle_new_category_name")
+@deco.conversation_message_handler(filters=Filters.text)
 def handle_new_category_name(update, context):
     chat_id = update.message.chat_id
     new_category_name = update.message.text
@@ -187,7 +185,7 @@ conv_handler = ConversationHandler(
     per_message=True
 )
 
-
+@deco.global_callback_handler(pattern='^cb_cancel_add_category$')
 def cancel_add_category(update, context):
     query = update.callback_query
     chat_id = query.message.chat_id
