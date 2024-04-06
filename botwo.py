@@ -1414,8 +1414,16 @@ def main():
     dp.add_handler(CallbackQueryHandler(back_to_main_menu, pattern='^cb_main_menu$', pass_user_data=True, pass_chat_data=True,  pass_update_queue=True))
 
     # Add handler for handling category name input
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command & Filters.user, handle_category_name))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command & Filters.user, handle_new_category_name))
+    #dp.add_handler(MessageHandler(Filters.text & ~Filters.command & Filters.user, handle_delete_category_name))
+    #dp.add_handler(MessageHandler(Filters.text & ~Filters.command & Filters.user, handle_new_category_name))
+    # Start add category conversation 
+    dp.add_handler(CallbackQueryHandler(add_category, pattern='^add_category$'))
+
+    # Handle category name input
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_new_category_name))
+
+    # Handle delete category input 
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_delete_category_name))
 
     dp.add_handler(CallbackQueryHandler(cancel_delete, pattern='^cb_cancel_delete$'))
     dp.add_handler(CallbackQueryHandler(cancel_add_category, pattern='^cb_cancel_add_category$'))

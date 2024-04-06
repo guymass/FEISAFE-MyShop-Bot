@@ -92,7 +92,7 @@ def delete_category(update, context):
     context.user_data['state'] = 'waiting_for_category_name'
 
 
-def handle_category_name(update, context):
+def handle_delete_category_name(update, context):
     chat_id = update.message.chat_id
     category_name = update.message.text
     

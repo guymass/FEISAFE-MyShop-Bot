@@ -53,7 +53,7 @@ __all__ = [
     "admin_menu",
     "manage_categories",
     "delete_category",
-    "handle_category_name",
+    "handle_delete_category_name",
     "add_category",
     "cancel_add_category",
     "handle_new_category_name",
