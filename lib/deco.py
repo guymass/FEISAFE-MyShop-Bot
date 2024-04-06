@@ -121,7 +121,8 @@ def restricted(func):
         print(user_name)
         if user_id not in admin_list:
             query = update.callback_query
-            print("גישה חסומה עבורכם. {}.".format(user_id))
+            print("גישה חסומה עבורכם. {}.\n".format(user_id))
+            print(admin_list)
             query.edit_message_text('משתמש לא מאושר לשימוש בפקודה זו!')
             return  # quit function
         return func(update, context, *args, **kwargs)

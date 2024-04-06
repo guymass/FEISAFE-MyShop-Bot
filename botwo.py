@@ -50,6 +50,8 @@ from lib import deco
 from lib.database import db
 import states
 import logging
+from settings import admin_list
+
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -65,7 +67,7 @@ password = urllib.parse.quote_plus(mongo_password)
 client = MongoClient('mongodb://%s:%s@127.0.0.1:17474/' % (username, password), unicode_decode_error_handler='ignore')
 db = client.bowto
 
-admin_list = [583505750]
+#admin_list = [583505750]
 CHATID = -1001177209024
 
 
@@ -167,7 +169,7 @@ def bots_advert(update, context):
 def mainmenu(update, context):
     user_id = update.effective_message.from_user.id
     chat_id = update.effective_chat.id
-    admin_list = [583505750]
+   
     buttons = []
     
     message = "\U0001F3C1 תפריט ראשי \U0001F3C1"
@@ -1219,7 +1221,8 @@ def setitem(update, context):
             db["completed"].find_one_and_update({"Mobile": text}, {"$set":{"Status": "Delivered"}})
             context.bot.send_message(chat_id, "<b>Update SUCCESS!</b>", parse_mode='HTML')
             context.bot.send_message(chat_id, "הרשומה עודכנה בהצלחה!")
-@restricted
+
+"""@restricted
 def total(update, context):
     chat_id = update.effective_message.chat_id
     result = db["completed"].find({})
@@ -1237,7 +1240,7 @@ def total(update, context):
         sum = sum + total_orders[i];
 
     msg = emojize("סך כל ההזמנות שסופקו:\n {} ".format(sum))
-    context.bot.send_message(chat_id, msg)
+    context.bot.send_message(chat_id, msg)"""
 
 @restricted
 def clear_images(update, context):
@@ -1363,7 +1366,7 @@ def main():
     dp.add_handler(CommandHandler('admin', admin))
     dp.add_handler(CommandHandler('getlist', getlist))
     dp.add_handler(CommandHandler('setitem', setitem))
-    dp.add_handler(CommandHandler('total', total))
+    #dp.add_handler(CommandHandler('total', total))
     dp.add_handler(CommandHandler('clear', clear_images))
     dp.add_handler(CommandHandler('delete', delete))
     dp.add_handler(CommandHandler('approve', approve))

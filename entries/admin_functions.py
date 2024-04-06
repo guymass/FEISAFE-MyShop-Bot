@@ -14,6 +14,7 @@ from mongoengine import *
 from pymongo import MongoClient
 import logging
 from telegram.ext import ConversationHandler, CallbackQueryHandler
+from settings import admin_list
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +117,7 @@ def cancel_delete(update, context):
     manage_categories(update, context)
 
 @deco.run_async
+@deco.restricted
 @deco.global_command_handler("add_category")
 def add_category(update, context):
     context.user_data['state'] = 'waiting_for_category_name'
@@ -135,7 +137,10 @@ def add_category(update, context):
     # Set the state to WAITING_FOR_CATEGORY_NAME
     
     return context.user_data['state']
+
+
 @deco.run_async
+@deco.restricted
 @deco.global_command_handler("handle_new_category_name")
 def handle_new_category_name(update, context):
     chat_id = update.message.chat_id
