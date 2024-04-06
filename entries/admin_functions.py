@@ -24,7 +24,9 @@ from lib.states import *
 
 
 logger = logging.getLogger(__name__)
-WAITING_FOR_CATEGORY = 1
+ADD_CATEGORY = 10
+WAITING_FOR_CATEGORY = 11 
+CATEGORY_ADDED = 12
 
 username = urllib.parse.quote_plus('guy')
 password = urllib.parse.quote_plus('OVc8EBd@guy!')
@@ -89,7 +91,7 @@ def delete_category(update, context):
                              reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Cancel", callback_data="cb_cancel_delete")]]))
     
     # Set the state to "waiting_for_category_name"
-    context.user_data['state'] = 'waiting_for_category_name'
+    context.user_data['state'] = WAITING_FOR_CATEGORY
 
 
 def handle_delete_category_name(update, context):
@@ -128,7 +130,7 @@ def add_category(update, context):
     try:
         chat_id = update.effective_chat.id
         # Define the cancel button
-        cancel_button = InlineKeyboardButton("ביטול", callback_data="cb_cancel_add_category")
+        cancel_button = InlineKeyboardButton("cancel", callback_data="cb_cancel_add_category")
         
         # Create the message with the cancel button
         message_text = "בבקשה שלח את שם הקטגוריה שברצונך להוסיף או לחץ על 'ביטול' לביטול הפעולה:"
@@ -138,8 +140,8 @@ def add_category(update, context):
         context.bot.send_message(chat_id, text=message_text, reply_markup=reply_markup)
         
         # Set the state to WAITING_FOR_CATEGORY_NAME
-        context.user_data['state'] = WAITING_FOR_CATEGORY
-        return WAITING_FOR_CATEGORY
+        context.user_data['state'] = ADD_CATEGORY
+        return ADD_CATEGORY
     except Exception as e:
         logger.error(f"Error in add_category: {e}")
         return ConversationHandler.END
@@ -207,7 +209,7 @@ def back_to_main_menu(update, context):
 conv_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
     states={
-        WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
+        ADD_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
     },
     fallbacks=[MessageHandler(Filters.all, fallback)],
     allow_reentry=True,
