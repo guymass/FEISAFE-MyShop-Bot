@@ -24,6 +24,7 @@ from lib.states import *
 
 
 logger = logging.getLogger(__name__)
+WAITING_FOR_CATEGORY = 1
 
 username = urllib.parse.quote_plus('guy')
 password = urllib.parse.quote_plus('OVc8EBd@guy!')
@@ -144,8 +145,7 @@ def add_category(update, context):
         return ConversationHandler.END
 
 
-# Handle user input during the conversation
-@deco.register_state_message('WAITING_FOR_CATEGORY_NAME', filters=Filters.text & ~Filters.command)
+# Handle user input during the conversation0
 def handle_new_category_name(update, context):
     try:
         chat_id = update.effective_chat.id
@@ -169,18 +169,17 @@ def handle_new_category_name(update, context):
             context.bot.send_message(chat_id, text=f"הקטגוריה '{new_category_name}' נוספה בהצלחה!")
         
         # Update the state if needed
-        context.user_data['state'] = CATEGORY_ADDED
+        context.user_data['state'] = WAITING_FOR_CATEGORY
+
         
         # Return to the manage categories menu
         manage_categories(update, context)
-        return CATEGORY_ADDED
+        return WAITING_FOR_CATEGORY
     except Exception as e:
         logger.error(f"Error in handle_new_category_name: {e}")
         context.bot.send_message(chat_id, text="אירעה שגיאה במהלך הוספת הקטגוריה.")
-        return ConversationHandler.END
-
-# Create ConversationHandler
-
+        return WAITING_FOR_CATEGORY
+ 
 def fallback(update, context):
     update.message.reply_text("Sorry, I didn't understand that. Please try again.")
 
@@ -203,3 +202,13 @@ def back_to_main_menu(update, context):
     admin_menu(update, context)
 
 
+# Create ConversationHandler
+conv_handler = ConversationHandler(
+    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
+    states={
+        WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
+    },
+    fallbacks=[MessageHandler(Filters.all, fallback)],
+    allow_reentry=True,
+    per_message=False
+    )

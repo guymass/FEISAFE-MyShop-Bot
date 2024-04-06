@@ -45,8 +45,8 @@ import urllib
 from emoji import emojize
 from settings import (mongo_host, mongo_user, mongo_password, mongo_collection)
 from entries.admin_functions import admin_menu, manage_categories, delete_category, add_category, back_to_main_menu, handle_category_name, cancel_delete, cancel_add_category
-from entries.admin_functions import handle_new_category_name
-from lib.states import WAITING_FOR_CATEGORY, CATEGORY_ADDED, ADD_CATEGORY
+from entries.admin_functions import handle_new_category_name, conv_handler
+
 from lib import deco
 from lib.database import db
 import states
@@ -58,6 +58,7 @@ from lib.deco import *
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+
 
 logger = logging.getLogger(__name__)
 user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:54.0) Gecko/20100101 Firefox/54.0'
@@ -1419,18 +1420,6 @@ def main():
     dp.add_handler(CallbackQueryHandler(cancel_delete, pattern='^cb_cancel_delete$'))
     dp.add_handler(CallbackQueryHandler(cancel_add_category, pattern='^cb_cancel_add_category$'))
     dp.add_handler(CallbackQueryHandler(select_category, pattern=r'^select_category_'))
-    
-    
-    
-    conv_handler = ConversationHandler(
-    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
-    states={
-        WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
-    },
-    fallbacks=[MessageHandler(Filters.all, fallback)],
-    allow_reentry=True,
-    per_message=True
-)
     
     dp.add_handler(conv_handler)
     # Start the Bot
