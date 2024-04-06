@@ -15,11 +15,12 @@ from pymongo import MongoClient
 import logging
 from telegram.ext import ConversationHandler, CallbackQueryHandler
 from settings import admin_list
-from lib.deco import conversation_command_handler, conversation_message_handler, fallback_handler
-
+from lib.deco import *
+import lib.states
+from lib.states import *
 # Define states
-WAITING_FOR_CATEGORY_NAME = 1
-NEW_STATE = 2
+#WAITING_FOR_CATEGORY_NAME = 1
+#NEW_STATE = 2
 
 
 logger = logging.getLogger(__name__)
@@ -213,3 +214,12 @@ def back_to_main_menu(update, context):
     admin_menu(update, context)
 
 
+conv_handler = ConversationHandler(
+    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
+    states={
+        WAITING_FOR_CATEGORY_NAME: [MessageHandler(Filters.text, handle_new_category_name)],
+    },
+    fallbacks=[MessageHandler(Filters.all, fallback)],
+    allow_reentry=True,
+    per_message=True
+)

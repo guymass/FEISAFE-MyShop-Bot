@@ -51,7 +51,7 @@ from lib.database import db
 import states
 import logging
 from settings import admin_list
-from lib.deco import conversation_command_handler, conversation_message_handler
+from lib.deco import *
 
 
 logging.basicConfig(
@@ -1338,17 +1338,6 @@ def main():
     cnvDataFile.close()
     
     pp = PicklePersistence(filename='botwo.txt')
-    
-
-    conv_handler = ConversationHandler(
-        entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
-        states={
-            WAITING_FOR_CATEGORY_NAME: [MessageHandler(Filters.text, handle_new_category_name)],
-        },
-        fallbacks=[MessageHandler(Filters.all, fallback)],
-        allow_reentry=True,
-        per_message=True
-    )
 
     token = '1005480770:AAHZLpw1vclOGq2nwNlStt5aDbqrIiNsxYI'
     updater = Updater(token, use_context=True, defaults=defaults, request_kwargs={'read_timeout': 900, 'connect_timeout': 900})
