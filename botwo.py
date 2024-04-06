@@ -51,6 +51,7 @@ from lib.database import db
 import states
 import logging
 from settings import admin_list
+from lib.deco import conversation_command_handler, conversation_message_handler
 
 
 logging.basicConfig(
