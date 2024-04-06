@@ -1,0 +1,29 @@
+from telegram.ext import Filters
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup)
+from lib import (deco, states)
+from lib.database import db
+
+@deco.run_async
+@deco.register_state_message(states.FORTH, Filters.text, pass_user_data=True, pass_chat_data=True, pass_update_queue=True)
+def add_notes(update, context):
+    user_id = update.effective_message.from_user.id
+    #text = ''.join(context.args)
+    text = update.message.text
+    context.user_data['address'] = text
+    category = context.user_data['address']
+
+    cancel_keyboard = []
+    cancel_keyboard =  [[InlineKeyboardButton("ביטול", callback_data="cancel")]]
+    cancel_keyboard = list(cancel_keyboard)
+    reply_markup_cancel = InlineKeyboardMarkup(cancel_keyboard)
+    if category != 0:
+
+        doc = db.tmp_orders.find_one_and_update(
+        {"UserId": user_id},
+        {"$set":
+            {"Address": category}
+        },upsert=True
+        )
+
+        update.message.reply_text("\U0000200F 👩‍🌾 אם יש לכם הערה להוסיף אנא רשמו אותה כעת או כתבו \"ללא\" ושלחו, אני ממתין...⏳", reply_markup=reply_markup_cancel)
+        return states.FIFTH
