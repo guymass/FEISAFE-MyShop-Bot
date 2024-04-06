@@ -1,0 +1,3 @@
+[console_scripts]
+json-reader = json_reader.__main__:main
+

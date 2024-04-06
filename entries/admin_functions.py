@@ -137,8 +137,8 @@ def add_category(update, context):
         context.bot.send_message(chat_id, text=message_text, reply_markup=reply_markup)
         
         # Set the state to WAITING_FOR_CATEGORY_NAME
-        context.user_data['state'] = WAITING_FOR_CATEGORY_NAME
-        return WAITING_FOR_CATEGORY_NAME
+        context.user_data['state'] = WAITING_FOR_CATEGORY
+        return WAITING_FOR_CATEGORY
     except Exception as e:
         logger.error(f"Error in add_category: {e}")
         return ConversationHandler.END
@@ -169,11 +169,11 @@ def handle_new_category_name(update, context):
             context.bot.send_message(chat_id, text=f"הקטגוריה '{new_category_name}' נוספה בהצלחה!")
         
         # Update the state if needed
-        context.user_data['state'] = NEW_STATE
+        context.user_data['state'] = CATEGORY_ADDED
         
         # Return to the manage categories menu
         manage_categories(update, context)
-        return NEW_STATE
+        return CATEGORY_ADDED
     except Exception as e:
         logger.error(f"Error in handle_new_category_name: {e}")
         context.bot.send_message(chat_id, text="אירעה שגיאה במהלך הוספת הקטגוריה.")
@@ -184,17 +184,6 @@ def handle_new_category_name(update, context):
 def fallback(update, context):
     update.message.reply_text("Sorry, I didn't understand that. Please try again.")
 
-conv_handler = ConversationHandler(
-    entry_points=[CommandHandler('add_category', add_category)],
-    states={
-        WAITING_FOR_CATEGORY_NAME: [handle_new_category_name],
-        # Define other states and corresponding handlers here
-    },
-    fallbacks=[fallback_handler(pattern='^cancel$')]  # Add a fallback handler for cancellation
-)
-
-
-#@deco.global_callback_handler(pattern='^cb_cancel_add_category$')
 @deco.fallback_handler(pattern='^cb_cancel_add_category$')
 def cancel_add_category(update, context):
     query = update.callback_query
@@ -214,12 +203,3 @@ def back_to_main_menu(update, context):
     admin_menu(update, context)
 
 
-conv_handler = ConversationHandler(
-    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
-    states={
-        WAITING_FOR_CATEGORY_NAME: [MessageHandler(Filters.text, handle_new_category_name)],
-    },
-    fallbacks=[MessageHandler(Filters.all, fallback)],
-    allow_reentry=True,
-    per_message=True
-)
