@@ -37,11 +37,11 @@ def admin_menu(update, context):
     query = update.callback_query
     chat_id = update.effective_chat.id
     data = query.data
-    message = "\U0001F3C1 תפריט אדמין \U0001F3C1"
-    pending_posts = "ממתינים לאישור"
-    manage_categories = "ניהול קטגוריות"
-    manage_users = "ניהול משתמשים"
-    analytics = "ניתוח נתונים"
+    message = "\U0001F3C1 Admin Menu \U0001F3C1"
+    pending_posts = "Pending Posts Approval"
+    manage_categories = "Manage Categories"
+    manage_users = "Manage Users"
+    analytics = "Analytics"
     
     # Define buttons for each admin option
     buttons = [
@@ -70,9 +70,9 @@ def manage_categories(update, context):
     
     # Define buttons for manage categories menu
     buttons = [
-        [InlineKeyboardButton("מחיקת קטגוריה", callback_data="cb_delete_category")],
-        [InlineKeyboardButton("הוספת קטגוריה", callback_data="cb_add_category")],
-        [InlineKeyboardButton("חזרה לתפריט קודם", callback_data="cb_admin_menu")]
+        [InlineKeyboardButton("Remove Category", callback_data="cb_delete_category")],
+        [InlineKeyboardButton("Add New Category", callback_data="cb_add_category")],
+        [InlineKeyboardButton("Previous Menu", callback_data="cb_admin_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(buttons)
     
@@ -86,7 +86,7 @@ def delete_category(update, context):
     
     # Ask the user for the category name
     context.bot.send_message(chat_id, text="בבקשה שלח את שם הקטגוריה שברצונך למחוק, או לחץ על 'ביטול' לחזרה לתפריט הקטגוריות:",
-                             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ביטול", callback_data="cb_cancel_delete")]]))
+                             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Cancel", callback_data="cb_cancel_delete")]]))
     
     # Set the state to "waiting_for_category_name"
     context.user_data['state'] = 'waiting_for_category_name'

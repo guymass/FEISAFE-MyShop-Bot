@@ -44,7 +44,7 @@ import sys
 import urllib
 from emoji import emojize
 from settings import (mongo_host, mongo_user, mongo_password, mongo_collection)
-from entries.admin_functions import admin_menu, manage_categories, delete_category, add_category, back_to_main_menu, handle_category_name, cancel_delete, cancel_add_category
+from entries.admin_functions import admin_menu, manage_categories, delete_category, add_category, back_to_main_menu, handle_delete_category_name, cancel_delete, cancel_add_category
 from entries.admin_functions import handle_new_category_name, conv_handler
 
 from lib import deco
@@ -177,7 +177,7 @@ def mainmenu(update, context):
     
     message = "\U0001F3C1 תפריט ראשי \U0001F3C1"
     
-    admin_menu = emojize("תפריט ניהול")
+    admin_menu = emojize("Admin Menu")
     search = emojize("\U0001F50D חיפוש")
     cancel = emojize("\U0000274c ביטול")
     create = emojize("\U0001F4F0 צור מודעה")
@@ -350,7 +350,7 @@ def start(update, context):
     help = emojize("\U00002753 עזרה")
     bots = emojize("\U0001F916 רוצים בוט משלכם?")
     latest = emojize("\U0001F195 פרסומים חדשים \U0001F195")
-    admin_menu = "תפריט אדמין"
+    admin_menu = "Admin Menu"
     
     
     buttons = []
