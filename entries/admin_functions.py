@@ -127,28 +127,28 @@ def cancel_delete(update, context):
 
 @deco.conversation_command_handler('add_category')
 def add_category(update, context):
-    try:
-        chat_id = update.effective_chat.id
-        # Define the cancel button
-        cancel_button = InlineKeyboardButton("cancel", callback_data="cb_cancel_add_category")
-        
-        # Create the message with the cancel button
-        message_text = "בבקשה שלח את שם הקטגוריה שברצונך להוסיף או לחץ על 'ביטול' לביטול הפעולה:"
-        reply_markup = InlineKeyboardMarkup([[cancel_button]])
-        
-        # Send the message with the cancel button
-        context.bot.send_message(chat_id, text=message_text, reply_markup=reply_markup)
-        
-        # Set the state to WAITING_FOR_CATEGORY_NAME
-        context.user_data['state'] = ADD_CATEGORY
-        return ADD_CATEGORY
-    except Exception as e:
-        logger.error(f"Error in add_category: {e}")
-        return ConversationHandler.END
+    context.user_data['state'] = WAITING_FOR_CATEGORY
+    #try:
+    chat_id = update.effective_chat.id
+    # Define the cancel button
+    cancel_button = InlineKeyboardButton("cancel", callback_data="cb_cancel_add_category")
+    
+    # Create the message with the cancel button
+    message_text = "בבקשה שלח את שם הקטגוריה שברצונך להוסיף או לחץ על 'ביטול' לביטול הפעולה:"
+    reply_markup = InlineKeyboardMarkup([[cancel_button]])
+    
+    # Send the message with the cancel button
+    context.bot.send_message(chat_id, text=message_text, reply_markup=reply_markup)
+    
+    # Set the state to WAITING_FOR_CATEGORY_NAME
+
+    return WAITING_FOR_CATEGORY
+    #except Exception as e:
+    #    logger.error(f"Error in add_category: {e}")
+    #    return ConversationHandler.END
 
 
-# Handle user input during the conversation
-@deco.global_message_handler(Filters.text)
+@deco.register_state_message(WAITING_FOR_CATEGORY, Filters.text)  
 def handle_new_category_name(update, context):
     try:
         chat_id = update.effective_chat.id
@@ -172,17 +172,21 @@ def handle_new_category_name(update, context):
             context.bot.send_message(chat_id, text=f"הקטגוריה '{new_category_name}' נוספה בהצלחה!")
         
         # Update the state if needed
-        context.user_data['state'] = WAITING_FOR_CATEGORY
+        context.user_data['state'] = CATEGORY_ADDED
+        return CATEGORY_ADDED 
 
-        
-        # Return to the manage categories menu
-        manage_categories(update, context)
-        return WAITING_FOR_CATEGORY
     except Exception as e:
         logger.error(f"Error in handle_new_category_name: {e}")
         context.bot.send_message(chat_id, text="אירעה שגיאה במהלך הוספת הקטגוריה.")
         return WAITING_FOR_CATEGORY
- 
+
+# Handle next state
+@deco.register_state_message(CATEGORY_ADDED, Filters.text)  
+def category_added(update, context):
+  update.message.reply_text("Category added!")
+  manage_categories(update, context)
+  return ConversationHandler.END
+
 def fallback(update, context):
     update.message.reply_text("Sorry, I didn't understand that. Please try again.")
 
@@ -209,9 +213,10 @@ def back_to_main_menu(update, context):
 conv_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
     states={
-        ADD_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
+        WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
+        CATEGORY_ADDED: [MessageHandler(Filters.text, category_added)],
     },
-    fallbacks=[MessageHandler(Filters.all, fallback)],
+    fallbacks=[MessageHandler(Filters.all, fallback_handler)],
     allow_reentry=True,
     per_message=False
     )

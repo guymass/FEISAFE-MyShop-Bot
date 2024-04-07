@@ -55,11 +55,14 @@ __all__ = [
     "delete_category",
     "handle_delete_category_name",
     "add_category",
+    "category_added",
     "cancel_add_category",
     "handle_new_category_name",
     "admin_functions",
     "conv_handler",
     "cancel",
-    
+    "fallback",
+    "fallbak_handler",
+    "admin_functions"   
 ]
 
