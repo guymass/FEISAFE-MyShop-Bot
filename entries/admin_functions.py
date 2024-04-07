@@ -210,10 +210,10 @@ def back_to_main_menu(update, context):
 conv_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$'), CommandHandler('add_category', add_category)],
     states={
-        states.WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
-        states.CATEGORY_ADDED: [MessageHandler(Filters.text, category_added)],
+        states.WAITING_FOR_CATEGORY: [CallbackQueryHandler(handle_new_category_name, pattern='^handle_new_category_name$')],
+        states.CATEGORY_ADDED: [CallbackQueryHandler(category_added, pattern='^category_added$')],
     },
-    fallbacks=[MessageHandler(Filters.all, fallback)],
+    fallbacks=[CallbackQueryHandler(cancel_add_category, pattern='^cb_cancel_add_category$')],
     allow_reentry=True,
     per_message=False
     )
