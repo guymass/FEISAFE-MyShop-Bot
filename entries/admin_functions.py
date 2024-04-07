@@ -15,18 +15,16 @@ from pymongo import MongoClient
 import logging
 from telegram.ext import ConversationHandler, CallbackQueryHandler
 from settings import admin_list
-from lib.deco import *
-import lib.states
-from lib.states import *
-# Define states
-#WAITING_FOR_CATEGORY_NAME = 1
-#NEW_STATE = 2
+#from lib.deco import *
+#import lib.states
+#from lib.states import *
 
+from lib import (common, deco, states)
+from lib.database import db
+
+#cbs = "add_category|handle_new_category_name|category_added"
 
 logger = logging.getLogger(__name__)
-ADD_CATEGORY = 10
-WAITING_FOR_CATEGORY = 11 
-CATEGORY_ADDED = 12
 
 username = urllib.parse.quote_plus('guy')
 password = urllib.parse.quote_plus('OVc8EBd@guy!')
@@ -90,8 +88,8 @@ def delete_category(update, context):
     context.bot.send_message(chat_id, text="בבקשה שלח את שם הקטגוריה שברצונך למחוק, או לחץ על 'ביטול' לחזרה לתפריט הקטגוריות:",
                              reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Cancel", callback_data="cb_cancel_delete")]]))
     
-    # Set the state to "waiting_for_category_name"
-    context.user_data['state'] = WAITING_FOR_CATEGORY
+    # Set the state to "states.WAITING_FOR_CATEGORY_name"
+    context.user_data['state'] = states.WAITING_FOR_CATEGORY
 
 
 def handle_delete_category_name(update, context):
@@ -125,9 +123,9 @@ def cancel_delete(update, context):
     manage_categories(update, context)
 
 
-@deco.conversation_command_handler('add_category')
+@deco.register_state_callback("add_category", pattern="^add_category$", pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
 def add_category(update, context):
-    context.user_data['state'] = WAITING_FOR_CATEGORY
+    context.user_data['state'] = states.WAITING_FOR_CATEGORY
     #try:
     chat_id = update.effective_chat.id
     # Define the cancel button
@@ -140,15 +138,15 @@ def add_category(update, context):
     # Send the message with the cancel button
     context.bot.send_message(chat_id, text=message_text, reply_markup=reply_markup)
     
-    # Set the state to WAITING_FOR_CATEGORY_NAME
+    # Set the state to states.WAITING_FOR_CATEGORY_NAME
 
-    return WAITING_FOR_CATEGORY
+    return states.WAITING_FOR_CATEGORY
     #except Exception as e:
     #    logger.error(f"Error in add_category: {e}")
     #    return ConversationHandler.END
 
 
-@deco.register_state_message(WAITING_FOR_CATEGORY, Filters.text)  
+@deco.register_state_callback("handle_new_category_name", pattern="^handle_new_category_name$", pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
 def handle_new_category_name(update, context):
     try:
         chat_id = update.effective_chat.id
@@ -172,16 +170,15 @@ def handle_new_category_name(update, context):
             context.bot.send_message(chat_id, text=f"הקטגוריה '{new_category_name}' נוספה בהצלחה!")
         
         # Update the state if needed
-        context.user_data['state'] = CATEGORY_ADDED
-        return CATEGORY_ADDED 
+        context.user_data['state'] = states.CATEGORY_ADDED
+        return states.CATEGORY_ADDED 
 
     except Exception as e:
         logger.error(f"Error in handle_new_category_name: {e}")
         context.bot.send_message(chat_id, text="אירעה שגיאה במהלך הוספת הקטגוריה.")
-        return WAITING_FOR_CATEGORY
+        return states.WAITING_FOR_CATEGORY
 
-# Handle next state
-@deco.register_state_message(CATEGORY_ADDED, Filters.text)  
+@deco.register_state_callback("category_added", pattern="^category_added$", pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
 def category_added(update, context):
   update.message.reply_text("Category added!")
   manage_categories(update, context)
@@ -211,12 +208,12 @@ def back_to_main_menu(update, context):
 
 # Create ConversationHandler
 conv_handler = ConversationHandler(
-    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
+    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$'), CommandHandler('add_category', add_category)],
     states={
-        WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
-        CATEGORY_ADDED: [MessageHandler(Filters.text, category_added)],
+        states.WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
+        states.CATEGORY_ADDED: [MessageHandler(Filters.text, category_added)],
     },
-    fallbacks=[MessageHandler(Filters.all, fallback_handler)],
+    fallbacks=[MessageHandler(Filters.all, fallback)],
     allow_reentry=True,
     per_message=False
     )
