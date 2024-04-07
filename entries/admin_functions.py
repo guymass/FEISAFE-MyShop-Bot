@@ -71,7 +71,7 @@ def manage_categories(update, context):
     # Define buttons for manage categories menu
     buttons = [
         [InlineKeyboardButton("Remove Category", callback_data="cb_delete_category")],
-        [InlineKeyboardButton("Add New Category", callback_data="cb_add_category")],
+        [InlineKeyboardButton("Add New Category", callback_data="add_category")],
         [InlineKeyboardButton("Previous Menu", callback_data="cb_admin_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(buttons)
@@ -208,12 +208,17 @@ def back_to_main_menu(update, context):
 
 # Create ConversationHandler
 conv_handler = ConversationHandler(
-    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$'), CommandHandler('add_category', add_category)],
+
+    entry_points=[CommandHandler('add_category', add_category)],
+
     states={
-        states.WAITING_FOR_CATEGORY: [CallbackQueryHandler(handle_new_category_name, pattern='^handle_new_category_name$')],
-        states.CATEGORY_ADDED: [CallbackQueryHandler(category_added, pattern='^category_added$')],
+        states.WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
+
+        states.CATEGORY_ADDED: [MessageHandler(Filters.text, category_added)]
     },
-    fallbacks=[CallbackQueryHandler(cancel_add_category, pattern='^cb_cancel_add_category$')],
+
+    fallbacks=[MessageHandler(Filters.text, fallback)],
+
     allow_reentry=True,
-    per_message=False
-    )
+    per_message=True
+)
