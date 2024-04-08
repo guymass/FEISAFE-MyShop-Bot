@@ -15,14 +15,11 @@ from pymongo import MongoClient
 import logging
 from telegram.ext import ConversationHandler, CallbackQueryHandler
 from settings import admin_list
-#from lib.deco import *
-#import lib.states
-#from lib.states import *
+
 
 from lib import (common, deco, states)
 from lib.database import db
 
-#cbs = "add_category|handle_new_category_name|category_added"
 
 logger = logging.getLogger(__name__)
 
@@ -123,6 +120,24 @@ def cancel_delete(update, context):
     manage_categories(update, context)
 
 
+@deco.register_state_callback("add_category") 
+def add_category(update, context):
+
+    context.user_data['state'] = states.WAITING_FOR_CATEGORY
+  
+    # Send message with cancel button 
+    cancel_button = InlineKeyboardButton("cancel", callback_data="cb_cancel_add_category")
+
+    # Create the message with the cancel button
+    message_text = "בבקשה שלח את שם הקטגוריה שברצונך להוסיף או לחץ על 'ביטול' לביטול הפעולה:"
+    reply_markup = InlineKeyboardMarkup([[cancel_button]])
+
+    # Send the message with the cancel button
+    context.bot.send_message(chat_id, text=message_text, reply_markup=reply_markup)
+
+    return states.WAITING_FOR_CATEGORY
+
+
 
 @deco.register_state_callback("add_category", pattern="^add_category$", pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
 def add_category(update, context):
@@ -141,48 +156,34 @@ def add_category(update, context):
     
     # Set the state to states.WAITING_FOR_CATEGORY_NAME
 
-    return states.handle_new_category_name
+    return states.WAITING_FOR_CATEGORY
     #except Exception as e:
     #    logger.error(f"Error in add_category: {e}")
     #    return ConversationHandler.END
 
-@deco.register_state_message(states.WAITING_FOR_CATEGORY, Filters.update)
-@deco.global_message_handler(Filters.text)
-@deco.conversation_message_handler(Filters.text)
-@deco.register_state_callback("handle_new_category_name", pattern="^handle_new_category_name$", pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
-def handle_new_category_name(update, context):
-    try:
-        chat_id = update.effective_chat.id
-        new_category_name = update.message.text
-        
-        if new_category_name.lower() == 'cancel':
-            # Cancel the operation and return to the manage categories menu
-            context.bot.send_message(chat_id, text="הוספת הקטגוריה בוטלה.")
-            manage_categories(update, context)
-            return ConversationHandler.END
-        
-        # Check if the category name already exists
-        cursor = db_buttons.find_one({"ButtonName": new_category_name})
-        if cursor:
-            context.bot.send_message(chat_id, text=f"הקטגוריה '{new_category_name}' כבר קיימת.")
-        else:
-            # Insert the new category into the buttons collection
-            db_buttons.insert_one({"ButtonName": new_category_name, "ButtonCb": new_category_name.lower()})
-            
-            # Send a confirmation message
-            context.bot.send_message(chat_id, text=f"הקטגוריה '{new_category_name}' נוספה בהצלחה!")
-        
-        # Update the state if needed
-        context.user_data['state'] = states.CATEGORY_ADDED
-        return states.CATEGORY_ADDED 
+@deco.register_state_callback("handle_new_category")
+def handle_new_category(update, context):
 
-    except Exception as e:
-        logger.error(f"Error in handle_new_category_name: {e}")
-        context.bot.send_message(chat_id, text="אירעה שגיאה במהלך הוספת הקטגוריה.")
-        return states.WAITING_FOR_CATEGORY
+  category_name = update.message.text
+  
+  # Check if category name already exists
+  #if category_exists(category_name):
+  update.message.reply_text("You category name is:" + category_name)
+  
+  #return states.WAITING_FOR_CATEGORY
+
+  # Add new category to database
+  add_category_to_db(category_name)
+  
+  # Send confirmation message
+  update.message.reply_text("Added new category!")
+
+  # Set and return next state
+  context.user_data['state'] = states.CATEGORY_ADDED
+  return states.CATEGORY_ADDED
+
 
 @deco.register_state_message(states.CATEGORY_ADDED, Filters.update)
-@deco.register_state_callback("category_added", pattern="^category_added$", pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
 def category_added(update, context):
   update.message.reply_text("Category added!")
   manage_categories(update, context)
@@ -191,7 +192,6 @@ def category_added(update, context):
 def fallback(update, context):
     update.message.reply_text("Sorry, I didn't understand that. Please try again.")
 
-@deco.fallback_handler(pattern='^cb_cancel_add_category$')
 def cancel_add_category(update, context):
     query = update.callback_query
     chat_id = query.message.chat_id
@@ -209,20 +209,3 @@ def back_to_main_menu(update, context):
     # Call the main menu function to display the main menu
     admin_menu(update, context)
 
-
-# Create ConversationHandler
-conv_handler = ConversationHandler(
-
-    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
-
-    states={
-        states.WAITING_FOR_CATEGORY: [MessageHandler(Filters.text, handle_new_category_name)],
-
-        states.CATEGORY_ADDED: [MessageHandler(Filters.text, category_added)]
-    },
-
-    fallbacks=[MessageHandler(Filters.text, fallback)],
-
-    allow_reentry=True,
-    per_message=True
-)
