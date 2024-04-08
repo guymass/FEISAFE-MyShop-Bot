@@ -46,11 +46,12 @@ from emoji import emojize
 from settings import (mongo_host, mongo_user, mongo_password, mongo_collection)
 from entries.admin_functions import admin_menu, manage_categories, delete_category, add_category, back_to_main_menu, handle_delete_category_name, cancel_delete, cancel_add_category, category_added
 
-import states
+import lib.states
 import logging
 from settings import admin_list
 from lib import (common, deco, states)
 from lib.database import db
+
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

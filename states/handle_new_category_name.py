@@ -2,8 +2,14 @@ from telegram.ext import Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from lib import (deco, states)
 from lib.database import db
+from entries import *
+from states import *
+import lib.deco
+import lib.states
+from entries import admin_functions
 
 @deco.register_state_message(states.WAITING_FOR_CATEGORY, Filters.text, pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
+@deco.register_state_callback("category_added", pattern="^category_added$", pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
 def handle_new_category_name(update, context):
     context.bot.send_message(chat_id, text=f"Trying to add a category now!\n")
     try:
@@ -13,16 +19,16 @@ def handle_new_category_name(update, context):
         if new_category_name.lower() == 'cancel':
             # Cancel the operation and return to the manage categories menu
             context.bot.send_message(chat_id, text="הוספת הקטגוריה בוטלה.")
-            manage_categories(update, context)
+            admin_functions.manage_categories(update, context)
             return ConversationHandler.END
         
         # Check if the category name already exists
-        cursor = db_buttons.find_one({"ButtonName": new_category_name})
+        cursor = db.buttons.find_one({"ButtonName": new_category_name})
         if cursor:
             context.bot.send_message(chat_id, text=f"הקטגוריה '{new_category_name}' כבר קיימת.")
         else:
             # Insert the new category into the buttons collection
-            db_buttons.insert_one({"ButtonName": new_category_name, "ButtonCb": new_category_name.lower()})
+            db.buttons.insert_one({"ButtonName": new_category_name, "ButtonCb": new_category_name.lower()})
             
             # Send a confirmation message
             context.bot.send_message(chat_id, text=f"הקטגוריה '{new_category_name}' נוספה בהצלחה!")
