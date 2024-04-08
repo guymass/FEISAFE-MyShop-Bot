@@ -1432,6 +1432,7 @@ def main():
         entry_points=deco.entry_points,
         states=deco.entry_states,
         fallbacks=deco.entry_fallbacks,
+        name="conversation",
         persistent=True,
         allow_reentry=True,
         per_user=True,
