@@ -95,7 +95,7 @@ def upload_video(update, context):
             db.videos.insert_one(video_item)
 
             video_details = emojize("\U0000200F  \U0001F505 תאריך פרסום: \U0001F505"+str(upload_date)+"\n"
-                                    +"Post Code: "+str(video_code)+"\n\n\U0001F505  \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505\n\n")
+                                    +"Post Code: "+str(video_code)+"\n\n"+"Status: Waiting for approval"+"\n\n\U0001F505  \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505\n\n")
             video_details += cap + "\n\n\U0001F505  \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505 \U0001F505\n\n"
 
             if document == 'video/mp4':
@@ -108,7 +108,7 @@ def upload_video(update, context):
                 user_msg = "עותק זה נשלח על ידי הבוט בשל מודעה שיצרתם. אנא שימרו על קוד המודעה שלכם, רק איתו תוכלו לבצע פעולות ניהול כמו מחיקה ועדכון."
                 context.bot.send_document(user_id, document=file_id, caption=video_details, parse_mode='HTML')
 
-            context.bot.send_message(chat_id, "הפוסט שלכם נשמר בהצלחה ויופיע במאגר החיפוש החל מהיום.\n שמרו את פרטי המודעה ובפרט את קוד המודעה שהונפק עבורה, רק איתה תוכל לנהל את הפרסומים שלכם לבוט.\nעל מודעות שנענו ונמכרו, על אחריות המוכר לשלוח את פקודת ההסרה.\nמודעות מעל חודש יוסרו מהרשימה באופן אוטומטי אלא אם כן נשלחה פקודת חידוש.")
+            context.bot.send_message(chat_id, "הפוסט שלכם נשמר בהצלחה ויופיע במאגר החיפוש החל מהיום.\n שמרו את פרטי המודעה ובפרט את קוד המודעה שהונפק עבורה, רק איתה תוכלו לנהל את הפרסומים שלכם לבוט.\nעל מודעות שנענו ונמכרו, על אחריות המוכר לשלוח את פקודת ההסרה.\nמודעות מעל חודש יוסרו מהרשימה באופן אוטומטי אלא אם כן נשלחה פקודת חידוש.")
             pass
         else:
             context.bot.send_message(chat_id, text="משהו קרה והקובץ לא נשמר, נסו שנית.")

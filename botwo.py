@@ -45,14 +45,12 @@ import urllib
 from emoji import emojize
 from settings import (mongo_host, mongo_user, mongo_password, mongo_collection)
 from entries.admin_functions import admin_menu, manage_categories, delete_category, add_category, back_to_main_menu, handle_delete_category_name, cancel_delete, cancel_add_category, category_added
-from entries.admin_functions import handle_new_category_name, conv_handler
 
 import states
 import logging
 from settings import admin_list
 from lib import (common, deco, states)
 from lib.database import db
-
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -1313,7 +1311,7 @@ def fallback(update, context):
     update.message.reply_text("Sorry, I didn't understand that. Please try again.")
 
 def main():
-
+    
     defaults = Defaults(parse_mode=ParseMode.HTML)
     if os.path.exists("botwo_persist_file.txt"):
         os.remove("botwo_persist_file.txt")
@@ -1341,7 +1339,7 @@ def main():
     pp = PicklePersistence(filename='botwo.txt')
 
     token = '1005480770:AAHZLpw1vclOGq2nwNlStt5aDbqrIiNsxYI'
-    updater = Updater(token, use_context=True, defaults=defaults, request_kwargs={'read_timeout': 900, 'connect_timeout': 900})
+    updater = Updater(token, persistence=pp, use_context=True, defaults=defaults, request_kwargs={'read_timeout': 900, 'connect_timeout': 900})
     job_queue = updater.job_queue
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -1424,15 +1422,29 @@ def main():
     dp.add_handler(CallbackQueryHandler(cancel_delete, pattern='^cb_cancel_delete$'))
     dp.add_handler(CallbackQueryHandler(select_category, pattern=r'^select_category_'))
     
-    dp.add_handler(conv_handler)
+    #dp.add_handler(conv_handler)
     # Start the Bot
+    for dispather in deco.global_dispatchers:
+        updater.dispatcher.add_handler(dispather)
+    
+    conversation_handler = ConversationHandler(
+        entry_points=deco.entry_points,
+        states=deco.entry_states,
+        fallbacks=deco.entry_fallbacks,
+        name="handle_new_category_name",
+        persistent=True,
+        allow_reentry=True,
+        per_user=True,
+        per_chat=True,
+        per_message=True
+    )
+
+    updater.dispatcher.add_handler(conversation_handler)
+    
+    #updater.dispatcher.add_error_handler(error)
+
     updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
-
 
 if __name__ == '__main__':
 
