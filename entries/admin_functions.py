@@ -123,7 +123,7 @@ def cancel_delete(update, context):
     manage_categories(update, context)
 
 
-@deco.register_state_message(states.ADD_CATEGORY, Filters.update)
+
 @deco.register_state_callback("add_category", pattern="^add_category$", pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
 def add_category(update, context):
     context.user_data['state'] = states.WAITING_FOR_CATEGORY
@@ -141,7 +141,7 @@ def add_category(update, context):
     
     # Set the state to states.WAITING_FOR_CATEGORY_NAME
 
-    return states.WAITING_FOR_CATEGORY
+    return states.handle_new_category_name
     #except Exception as e:
     #    logger.error(f"Error in add_category: {e}")
     #    return ConversationHandler.END
