@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 client = MongoClient('mongodb://%s:%s@{mongo_host}:17474/' % (mongo_user, mongo_password), unicode_decode_error_handler='ignore')
 db = client.collection
 db_buttons = db['buttons']
-
+@deco.conversation_command_handler('ADMIN_CATEGORIES', pass_user_data=True)
 def admin_menu(update, context):
     query = update.callback_query
     chat_id = update.effective_chat.id
@@ -56,7 +56,7 @@ def admin_menu(update, context):
         timeout=60
     )
 
-
+@deco.register_state_callback('MANAGE_CATEGORIES', pass_user_data=True)
 def manage_categories(update, context):
     query = update.callback_query
     chat_id = query.message.chat_id
@@ -100,7 +100,7 @@ def cancel_delete(update, context):
     # Return to the manage categories menu
     manage_categories(update, context)
 
-
+@deco.register_state_callback('ADD_CATEGORY', pass_user_data=True)
 def add_category(update, context):
     query = update.callback_query
     chat_id = query.message.chat_id
@@ -112,7 +112,7 @@ def add_category(update, context):
     context.user_data['state'] = "WAITING_FOR_CATEGORY"
     return states.WAITING_FOR_CATEGORY
 
-@deco.register_state_message(states.WAITING_FOR_CATEGORY, Filters.text, pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
+@deco.register_state_message('WAITING_FOR_CATEGORY', pass_user_data=True)
 def handle_new_category_name(update, context):
     chat_id = update.message.chat_id
     new_category_name = update.message.text
@@ -141,12 +141,11 @@ def handle_new_category_name(update, context):
         # Return to the manage categories menu
         return ConversationHandler.END
 
-# Create ConversationHandler
-
+@deco.fallback_handler(pass_user_data=True)
 def fallback(update, context):
     update.message.reply_text("Sorry, I didn't understand that. Please try again.")
 
-
+@deco.register_state_callback('CANCEL_ADD', pass_user_data=True)
 def cancel_add(update, context):
     query = update.callback_query
     chat_id = query.message.chat_id

@@ -45,7 +45,7 @@ import urllib
 from emoji import emojize
 from settings import (mongo_host, mongo_user, mongo_password, mongo_collection)
 from entries.admin_functions import admin_menu, manage_categories, delete_category, add_category, back_to_main_menu, handle_delete_category_name, cancel_delete, cancel_add_category, category_added, handle_new_category_name
-
+from entries.admin_functions import cancel_add_category
 import lib.states
 import logging
 from settings import admin_list
@@ -1408,18 +1408,21 @@ def main():
 
     dp.add_handler(CallbackQueryHandler(manage_categories, pattern='^cb_manage_categories$', pass_user_data=True, pass_chat_data=True,  pass_update_queue=True))
     dp.add_handler(CallbackQueryHandler(delete_category, pattern='^cb_delete_category$', pass_user_data=True, pass_chat_data=True,  pass_update_queue=True))
-    dp.add_handler(CallbackQueryHandler(add_category, pattern='^cb_add_category$', pass_user_data=True, pass_chat_data=True,  pass_update_queue=True))
+    dp.add_handler(MessageHandler(Filters.text, handle_delete_category_name))
+    dp.add_handler(CallbackQueryHandler(add_category, pattern='add_category$'))
+    dp.add_handler(CallbackQueryHandler(handle_new_category_name))
+    dp.add_handler(CallbackQueryHandler(cancel_add_category, pattern='^cb_cancel_add_category$'))
+    dp.add_handler(CallbackQueryHandler(category_added, pattern='^category_added$'))
+    dp.add_handler(CallbackQueryHandler(cancel_delete, pattern='^cb_cancel_delete$'))
+    
+    
+        
     dp.add_handler(CallbackQueryHandler(back_to_main_menu, pattern='^cb_main_menu$', pass_user_data=True, pass_chat_data=True,  pass_update_queue=True))
     
     # Handle delete category input
-    dp.add_handler(MessageHandler(Filters.text, handle_delete_category_name))
+    
 
     # Start add category conversation 
-    dp.add_handler(CallbackQueryHandler(add_category, pattern='add_category$'))
-    dp.add_handler(CallbackQueryHandler(cancel_add_category, pattern='^cb_cancel_add_category$'))
-    dp.add_handler(CallbackQueryHandler(handle_new_category_name))
-    #dp.add_handler(CallbackQueryHandler(category_added, pattern='^category_added$'))
-    dp.add_handler(CallbackQueryHandler(cancel_delete, pattern='^cb_cancel_delete$'))
     dp.add_handler(CallbackQueryHandler(select_category, pattern=r'^select_category_'))
     
     #dp.add_handler(conv_handler)

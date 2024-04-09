@@ -52,6 +52,7 @@ __all__ = [
     "get_post_id",
     "manage_categories",
     "admin_functions",
-    "cancel"
+    "cancel",
+    "ADMIN_CATEGORIES"
 ]
 
