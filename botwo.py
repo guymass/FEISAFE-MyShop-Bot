@@ -44,7 +44,7 @@ import sys
 import urllib
 from emoji import emojize
 from settings import (mongo_host, mongo_user, mongo_password, mongo_collection)
-from entries.admin_functions import admin_menu, manage_categories, delete_category, add_category, back_to_main_menu, handle_delete_category_name, cancel_delete, cancel_add_category, category_added, handle_new_category
+from entries.admin_functions import admin_menu, manage_categories, delete_category, add_category, back_to_main_menu, handle_delete_category_name, cancel_delete, cancel_add_category, category_added, handle_new_category_name
 
 import lib.states
 import logging
@@ -1417,7 +1417,7 @@ def main():
     # Start add category conversation 
     dp.add_handler(CallbackQueryHandler(add_category, pattern='add_category$'))
     dp.add_handler(CallbackQueryHandler(cancel_add_category, pattern='^cb_cancel_add_category$'))
-    dp.add_handler(MessageHandler(Filters.text, handle_new_category))
+    dp.add_handler(MessageHandler(Filters.text, handle_new_category_name))
     #dp.add_handler(CallbackQueryHandler(handle_new_category_name, pattern='^handle_new_category_name$'))
     #dp.add_handler(CallbackQueryHandler(category_added, pattern='^category_added$'))
     dp.add_handler(CallbackQueryHandler(cancel_delete, pattern='^cb_cancel_delete$'))

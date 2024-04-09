@@ -50,19 +50,8 @@ __all__ = [
     "start_order",
     "bots_advert",
     "get_post_id",
-    "admin_menu",
     "manage_categories",
-    "delete_category",
-    "handle_delete_category_name",
-    "add_category",
-    "category_added",
-    "cancel_add_category",
-    "handle_new_category_name",
     "admin_functions",
-    "conv_handler",
-    "cancel",
-    "fallback",
-    "fallbak_handler",
-    "admin_functions"   
+    "cancel"
 ]
 

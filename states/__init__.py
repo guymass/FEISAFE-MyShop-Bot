@@ -8,6 +8,5 @@ __all__ = [
     "ending_order",
     "done",
     "get_category",
-    "goodbye",
-    "handle_new_category_name"
+    "goodbye"
 ]
