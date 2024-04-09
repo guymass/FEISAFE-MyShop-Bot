@@ -16,12 +16,13 @@ import logging
 from telegram.ext import ConversationHandler, CallbackQueryHandler
 from lib import (deco, states)
 
+#
+# UserWarning: If 'per_message=True', all entry points and state handlers must be 'CallbackQueryHandler', since no other handlers have a message context.
+
 logger = logging.getLogger(__name__)
 
-WAITING_FOR_CATEGORY_NAME = 1
-
-username = urllib.parse.quote_plus('guy')
-password = urllib.parse.quote_plus('OVc8EBd@guy!')
+username = urllib.parse.quote_plus('')
+password = urllib.parse.quote_plus('')
 client = MongoClient('mongodb://%s:%s@127.0.0.1:17474/' % (username, password), unicode_decode_error_handler='ignore')
 
 db = client.bowto
@@ -143,16 +144,6 @@ def handle_new_category_name(update, context):
 
 def fallback(update, context):
     update.message.reply_text("Sorry, I didn't understand that. Please try again.")
-
-conv_handler = ConversationHandler(
-    entry_points=[CallbackQueryHandler(add_category, pattern='^add_category$')],
-    states={
-        WAITING_FOR_CATEGORY_NAME: [MessageHandler(Filters.text, handle_new_category_name)],
-    },
-    fallbacks=[MessageHandler(Filters.all, fallback)],
-    allow_reentry=True,
-    per_message=True
-)
 
 
 def cancel_add(update, context):

@@ -1417,8 +1417,7 @@ def main():
     # Start add category conversation 
     dp.add_handler(CallbackQueryHandler(add_category, pattern='add_category$'))
     dp.add_handler(CallbackQueryHandler(cancel_add_category, pattern='^cb_cancel_add_category$'))
-    dp.add_handler(MessageHandler(Filters.text, handle_new_category_name))
-    #dp.add_handler(CallbackQueryHandler(handle_new_category_name, pattern='^handle_new_category_name$'))
+    dp.add_handler(CallbackQueryHandler(handle_new_category_name))
     #dp.add_handler(CallbackQueryHandler(category_added, pattern='^category_added$'))
     dp.add_handler(CallbackQueryHandler(cancel_delete, pattern='^cb_cancel_delete$'))
     dp.add_handler(CallbackQueryHandler(select_category, pattern=r'^select_category_'))
