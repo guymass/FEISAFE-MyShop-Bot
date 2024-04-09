@@ -15,17 +15,18 @@ from pymongo import MongoClient
 import logging
 from telegram.ext import ConversationHandler, CallbackQueryHandler
 from lib import (deco, states)
-
+from settings import mongo_user, mongo_password, mongo_collection, mongo_host
 #
 # UserWarning: If 'per_message=True', all entry points and state handlers must be 'CallbackQueryHandler', since no other handlers have a message context.
 
 logger = logging.getLogger(__name__)
 
-username = urllib.parse.quote_plus('')
-password = urllib.parse.quote_plus('')
-client = MongoClient('mongodb://%s:%s@127.0.0.1:17474/' % (username, password), unicode_decode_error_handler='ignore')
+# for direct mongo connection with username/password must use urllib.parse.quote_plus() to be able to connect to mongo
+#username = urllib.parse.quote_plus('username')
+#password = urllib.parse.quote_plus('password')
 
-db = client.bowto
+client = MongoClient('mongodb://%s:%s@{mongo_host}:17474/' % (mongo_user, mongo_password), unicode_decode_error_handler='ignore')
+db = client.collection
 db_buttons = db['buttons']
 
 def admin_menu(update, context):
