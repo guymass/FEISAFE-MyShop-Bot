@@ -28,8 +28,13 @@ logger = logging.getLogger(__name__)
 client = MongoClient('mongodb://%s:%s@{mongo_host}:17474/' % (mongo_user, mongo_password), unicode_decode_error_handler='ignore')
 db = client.collection
 db_buttons = db['buttons']
+
+
+@deco.register_state_message('ADMIN_CATEGORIES', pass_user_data=True, pass_chat_data=True,  pass_update_queue=True)
 @deco.conversation_command_handler('ADMIN_CATEGORIES', pass_user_data=True)
 def admin_menu(update, context):
+    context.user_data['state'] = 'admin_categories'
+    
     query = update.callback_query
     chat_id = update.effective_chat.id
     data = query.data
@@ -58,6 +63,7 @@ def admin_menu(update, context):
 
 @deco.register_state_callback('MANAGE_CATEGORIES', pass_user_data=True)
 def manage_categories(update, context):
+    context.user_data['state'] = 'manage_categories'
     query = update.callback_query
     chat_id = query.message.chat_id
     
@@ -75,7 +81,7 @@ def manage_categories(update, context):
     # Edit the message to display the manage categories menu
     query.edit_message_text(text=text, reply_markup=reply_markup)
 
-
+@deco.register_state_message('DELETE_CATEGORY', pass_user_data=True)
 def delete_category(update, context):
     query = update.callback_query
     chat_id = query.message.chat_id
@@ -116,7 +122,7 @@ def add_category(update, context):
 def handle_new_category_name(update, context):
     chat_id = update.message.chat_id
     new_category_name = update.message.text
-
+    
     try:
         # Check if the category name already exists
         cursor = db_buttons.find_one({"ButtonName": new_category_name})
